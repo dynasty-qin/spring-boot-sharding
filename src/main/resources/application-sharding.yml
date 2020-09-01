@@ -1,0 +1,30 @@
+sharding:
+  jdbc:
+    config:
+      sharding:
+        default-data-source-name: master
+        binding-tables: record,order
+        broadcast-tables: parking
+        tables:
+          parking:
+            actual-data-nodes: master.parking,ds$->{0..2}.parking
+          record:
+            actual-data-nodes: ds$->{0..2}.record
+            database-strategy:
+              inline:
+                sharding-column: parking_id
+                algorithm-expression: ds$->{parking_id % 3}
+            table-strategy:
+              inline:
+                sharding-column: id
+                algorithm-expression: record
+          order:
+            actual-data-nodes: ds$->{0..2}.order
+            database-strategy:
+              inline:
+                sharding-column: parking_id
+                algorithm-expression: ds$->{parking_id % 3}
+            table-strategy:
+              inline:
+                sharding-column: id
+                algorithm-expression: order
